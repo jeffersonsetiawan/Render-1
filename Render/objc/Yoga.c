@@ -278,12 +278,12 @@ static inline float RYGValueResolveMargin(const RYGValue *const value, const flo
   return value->unit == RYGUnitAuto ? 0 : RYGValueResolve(value, parentSize);
 }
 
-int32_t gNodeInstanceCount = 0;
+int32_t rgNodeInstanceCount = 0;
 
 RYGNodeRef RYGNodeNew(void) {
   const RYGNodeRef node = gRYGMalloc(sizeof(RYGNode));
   RYG_ASSERT(node, "Could not allocate memory for node");
-  gNodeInstanceCount++;
+  rgNodeInstanceCount++;
 
   memcpy(node, &gRYGNodeDefaults, sizeof(RYGNode));
   return node;
@@ -303,7 +303,7 @@ void RYGNodeFree(const RYGNodeRef node) {
 
   RYGNodeListFree(node->children);
   gRYGFree(node);
-  gNodeInstanceCount--;
+  rgNodeInstanceCount--;
 }
 
 void RYGNodeFreeRecursive(const RYGNodeRef root) {
@@ -325,7 +325,7 @@ void RYGNodeReset(const RYGNodeRef node) {
 }
 
 int32_t RYGNodeGetInstanceCount(void) {
-  return gNodeInstanceCount;
+  return rgNodeInstanceCount;
 }
 
 static void RYGNodeMarkDirtyInternal(const RYGNodeRef node) {
@@ -657,7 +657,7 @@ RYG_NODE_LAYOUT_RESOLVED_PROPERTY_IMPL(float, Margin, margin);
 RYG_NODE_LAYOUT_RESOLVED_PROPERTY_IMPL(float, Border, border);
 RYG_NODE_LAYOUT_RESOLVED_PROPERTY_IMPL(float, Padding, padding);
 
-uint32_t gCurrentGenerationCount = 0;
+uint32_t rgCurrentGenerationCount = 0;
 
 bool RYGLayoutNodeInternal(const RYGNodeRef node,
                           const float availableWidth,
@@ -1329,7 +1329,7 @@ static void RYGNodeComputeFlexBasisForChild(const RYGNodeRef node,
   if (!RYGFloatIsUndefined(resolvedFlexBasis) && !RYGFloatIsUndefined(mainAxisSize)) {
     if (RYGFloatIsUndefined(child->layout.computedFlexBasis) ||
         (RYGIsExperimentalFeatureEnabled(RYGExperimentalFeatureWebFlexBasis) &&
-         child->layout.computedFlexBasisGeneration != gCurrentGenerationCount)) {
+         child->layout.computedFlexBasisGeneration != rgCurrentGenerationCount)) {
           child->layout.computedFlexBasis =
           fmaxf(resolvedFlexBasis, RYGNodePaddingAndBorderForAxis(child, mainAxis, parentWidth));
         }
@@ -1437,7 +1437,7 @@ static void RYGNodeComputeFlexBasisForChild(const RYGNodeRef node,
           RYGNodePaddingAndBorderForAxis(child, mainAxis, parentWidth));
   }
 
-  child->layout.computedFlexBasisGeneration = gCurrentGenerationCount;
+  child->layout.computedFlexBasisGeneration = rgCurrentGenerationCount;
 }
 
 static void RYGNodeAbsoluteLayoutChild(const RYGNodeRef node,
@@ -2018,7 +2018,7 @@ static void RYGNodelayoutImpl(const RYGNodeRef node,
       child->nextChild = NULL;
     } else {
       if (child == singleFlexChild) {
-        child->layout.computedFlexBasisGeneration = gCurrentGenerationCount;
+        child->layout.computedFlexBasisGeneration = rgCurrentGenerationCount;
         child->layout.computedFlexBasis = 0;
       } else {
         RYGNodeComputeFlexBasisForChild(node,
@@ -2907,10 +2907,10 @@ static void RYGNodelayoutImpl(const RYGNodeRef node,
   }
 }
 
-uint32_t gDepth = 0;
-bool gPrintTree = false;
-bool gPrintChanges = false;
-bool gPrintSkips = false;
+uint32_t rgDepth = 0;
+bool rgPrintTree = false;
+bool rgPrintChanges = false;
+bool rgPrintSkips = false;
 
 static const char *spacer = "                                                            ";
 
@@ -3024,10 +3024,10 @@ bool RYGLayoutNodeInternal(const RYGNodeRef node,
                           const char *reason) {
   RYGLayout *layout = &node->layout;
 
-  gDepth++;
+  rgDepth++;
 
   const bool needToVisitNode =
-  (node->isDirty && layout->generationCount != gCurrentGenerationCount) ||
+  (node->isDirty && layout->generationCount != rgCurrentGenerationCount) ||
   layout->lastParentDirection != parentDirection;
 
   if (needToVisitNode) {
@@ -3114,8 +3114,8 @@ bool RYGLayoutNodeInternal(const RYGNodeRef node,
     layout->measuredDimensions[RYGDimensionWidth] = cachedResults->computedWidth;
     layout->measuredDimensions[RYGDimensionHeight] = cachedResults->computedHeight;
 
-    if (gPrintChanges && gPrintSkips) {
-      printf("%s%d.{[skipped] ", RYGSpacer(gDepth), gDepth);
+    if (rgPrintChanges && rgPrintSkips) {
+      printf("%s%d.{[skipped] ", RYGSpacer(rgDepth), rgDepth);
       if (node->print) {
         node->print(node);
       }
@@ -3129,8 +3129,8 @@ bool RYGLayoutNodeInternal(const RYGNodeRef node,
              reason);
     }
   } else {
-    if (gPrintChanges) {
-      printf("%s%d.{%s", RYGSpacer(gDepth), gDepth, needToVisitNode ? "*" : "");
+    if (rgPrintChanges) {
+      printf("%s%d.{%s", RYGSpacer(rgDepth), rgDepth, needToVisitNode ? "*" : "");
       if (node->print) {
         node->print(node);
       }
@@ -3152,8 +3152,8 @@ bool RYGLayoutNodeInternal(const RYGNodeRef node,
                      parentHeight,
                      performLayout);
 
-    if (gPrintChanges) {
-      printf("%s%d.}%s", RYGSpacer(gDepth), gDepth, needToVisitNode ? "*" : "");
+    if (rgPrintChanges) {
+      printf("%s%d.}%s", RYGSpacer(rgDepth), rgDepth, needToVisitNode ? "*" : "");
       if (node->print) {
         node->print(node);
       }
@@ -3169,7 +3169,7 @@ bool RYGLayoutNodeInternal(const RYGNodeRef node,
 
     if (cachedResults == NULL) {
       if (layout->nextCachedMeasurementsIndex == RYG_MAX_CACHED_RESULT_COUNT) {
-        if (gPrintChanges) {
+        if (rgPrintChanges) {
           printf("Out of cache entries!\n");
         }
         layout->nextCachedMeasurementsIndex = 0;
@@ -3201,8 +3201,8 @@ bool RYGLayoutNodeInternal(const RYGNodeRef node,
     node->isDirty = false;
   }
 
-  gDepth--;
-  layout->generationCount = gCurrentGenerationCount;
+  rgDepth--;
+  layout->generationCount = rgCurrentGenerationCount;
   return (needToVisitNode || cachedResults == NULL);
 }
 
@@ -3234,7 +3234,7 @@ void RYGNodeCalculateLayout(const RYGNodeRef node,
   // all dirty nodes at least once. Subsequent visits will be skipped if the
   // input
   // parameters don't change.
-  gCurrentGenerationCount++;
+  rgCurrentGenerationCount++;
 
   float width = availableWidth;
   float height = availableHeight;
@@ -3283,7 +3283,7 @@ void RYGNodeCalculateLayout(const RYGNodeRef node,
       RYGRoundToPixelGrid(node);
     }
 
-    if (gPrintTree) {
+    if (rgPrintTree) {
       RYGNodePrint(node, RYGPrintOptionsLayout | RYGPrintOptionsChildren | RYGPrintOptionsStyle);
     }
   }
@@ -3311,7 +3311,7 @@ inline bool RYGIsExperimentalFeatureEnabled(RYGExperimentalFeature feature) {
 }
 
 void RYGSetMemoryFuncs(RYGMalloc RYGmalloc, RYGCalloc yccalloc, RYGRealloc RYGrealloc, RYGFree RYGfree) {
-  RYG_ASSERT(gNodeInstanceCount == 0, "Cannot set memory functions: all node must be freed first");
+  RYG_ASSERT(rgNodeInstanceCount == 0, "Cannot set memory functions: all node must be freed first");
   RYG_ASSERT((RYGmalloc == NULL && yccalloc == NULL && RYGrealloc == NULL && RYGfree == NULL) ||
             (RYGmalloc != NULL && yccalloc != NULL && RYGrealloc != NULL && RYGfree != NULL),
             "Cannot set memory functions: functions must be all NULL or Non-NULL");
