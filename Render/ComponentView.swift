@@ -16,7 +16,7 @@ public enum RenderOption {
 
   /** Animates the layout changes. */
   case animated(duration: TimeInterval,
-                options: UIViewAnimationOptions,
+    options: UIView.AnimationOptions,
                 alongside: (() -> Void)?)
 
   /** Internal use only. */

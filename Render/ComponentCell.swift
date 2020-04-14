@@ -22,7 +22,7 @@ open class ComponentTableViewCell<C : ComponentViewType>: UITableViewCell {
 
   public private(set) var componentView: C?
 
-  public override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
+    public override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
     super.init(style: style, reuseIdentifier: reuseIdentifier)
     self.selectionStyle = .none
   }
@@ -117,7 +117,7 @@ extension UITableView {
   public func renderVisibleComponents() {
     let size = CGSize(width: self.bounds.size.width, height: CGFloat.max)
     self.visibleCells
-      .flatMap { cell in cell as? ComponentCellType }
+      .compactMap { cell in cell as? ComponentCellType }
       .forEach { cell in cell.render(in: size, options: []) }
   }
 }
@@ -137,7 +137,7 @@ extension UICollectionView {
   public func renderVisibleComponents() {
     let size = CGSize(width: self.bounds.size.width, height: CGFloat.max)
     self.visibleCells
-      .flatMap { cell in cell as? ComponentCellType }
+      .compactMap { cell in cell as? ComponentCellType }
       .forEach { cell in cell.render(in: size, options: []) }
   }
 }

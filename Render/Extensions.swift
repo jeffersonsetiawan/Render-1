@@ -1,19 +1,19 @@
 import Foundation
 import UIKit
 
-public extension CGFloat {
+extension CGFloat {
   public static let undefined: CGFloat = RYGNaNSize.width
-  public static let max: CGFloat = CGFloat(FLT_MAX)
-  public static let epsilon: CGFloat = CGFloat(FLT_EPSILON)
+  public static let max: CGFloat = CGFloat(Float.greatestFiniteMagnitude)
+  public static let epsilon: CGFloat = CGFloat(Float.ulpOfOne)
 }
 
-public extension CGSize {
+extension CGSize {
   public static let undefined: CGSize = CGSize(width: CGFloat.undefined, height: CGFloat.undefined)
   public static let max: CGSize =  CGSize(width: CGFloat.max, height: CGFloat.max)
   public static let epsilon: CGSize =  CGSize(width: CGFloat.epsilon, height: CGFloat.epsilon)
 }
 
-public extension CGRect {
+extension CGRect {
   public mutating func normalize() {
     self.origin.x = self.origin.x.isNormal ? self.origin.x : 0
     self.origin.y = self.origin.y.isNormal ? self.origin.y : 0
@@ -26,7 +26,7 @@ fileprivate var handleAnimatable: UInt8 = 0
 fileprivate var handleHasNode: UInt8 = 0
 fileprivate var handleNewlyCreated: UInt8 = 0
 
-public extension UIView {
+extension UIView {
 
   public var isAnimatable: Bool {
     get {

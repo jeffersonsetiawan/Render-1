@@ -84,7 +84,7 @@ public class TableNode: NSObject, NodeType, UITableViewDataSource, UITableViewDe
     node.render(in: bounds)
     if let table = self.renderedView as? UITableView {
       table.estimatedRowHeight = 64;
-      table.rowHeight = UITableViewAutomaticDimension
+        table.rowHeight = UITableView.automaticDimension
       table.dataSource = self
       table.reloadData()
     }
